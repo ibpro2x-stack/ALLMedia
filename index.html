@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ALLMedia – Movies, Trending Videos & Entertainment</title>
-<meta name="description" content="ALLMedia brings trending movies, viral videos, and entertainment content in one place.">
+<meta name="description" content="ALLMedia App is a modern online hub designed for exploring trending content across all major social media platforms. It brings together the most popular shows, viral moments, trending trailers, and exciting entertainment in one place. The platform allows visitors to discover what’s currently trending worldwide quickly.">
 <a href="about_us.html">About Us</a>
 <a href="Movie.html">Movies</a>
 <link rel="icon" type="image/png" href="favicon.png">
@@ -236,34 +236,33 @@ header h1{
 </section>
 
 <script>
-const apiKey = "a973cb6970294f70abf4bdeacb79b215"; // 🔥 Put your real API key here
+const apiKey = "dd7853dcdf504f62c0c5a332238aa187"; // Your GNews API key
 const feed = document.querySelector(".feed");
 
-// Fetch News Function
 async function fetchNews() {
   try {
     console.log("Fetching latest news...");
 
     const response = await fetch(
-      `https://newsapi.org/v2/top-headlines?country=us&pageSize=6&apiKey=${apiKey}`
+      `https://gnews.io/api/v4/top-headlines?lang=en&country=us&max=6&apikey=${apiKey}`
     );
 
     const data = await response.json();
 
-    if (!data.articles) {
+    if (!data.articles || data.articles.length === 0) {
       console.error("No articles found.");
+      feed.innerHTML = "<p>No trending news available right now.</p>";
       return;
     }
 
-    // Clear old posts before adding new ones
-    feed.innerHTML = "";
+    feed.innerHTML = ""; // clear old posts
 
     data.articles.forEach(article => {
       const post = document.createElement("div");
       post.classList.add("post");
 
       post.innerHTML = `
-        <img src="${article.urlToImage ? article.urlToImage : 'https://via.placeholder.com/400x200'}">
+        <img src="${article.image ? article.image : 'https://via.placeholder.com/400x200'}">
         <div class="post-info">
           <h3>${article.title}</h3>
           <a href="${article.url}" target="_blank">Read More →</a>
@@ -274,18 +273,17 @@ async function fetchNews() {
     });
 
     console.log("News updated successfully!");
-
   } catch (error) {
     console.error("Error fetching news:", error);
+    feed.innerHTML = "<p>Unable to fetch news at the moment.</p>";
   }
 }
 
 // Load immediately when page opens
 fetchNews();
 
-// Refresh every 5 minutes (300000 milliseconds)
+// Refresh every 5 minutes
 setInterval(fetchNews, 300000);
-
 </script>
 <button onclick="Rate us" style="position:fixed; bottom:20px; right:20px; padding:12px 18px; background:#6c63ff; color:#fff; border:none; border-radius:30px; box-shadow:0 8px 20px rgba(0,0,0,0.1); cursor:pointer; transition:.3s;"
 >0795387933 Rate Us</button>
@@ -293,5 +291,6 @@ setInterval(fetchNews, 300000);
 <button onclick="window.location.href='about_us.html'" style="position:fixed; bottom:20px; left:20px; padding:12px 18px; background:#6c63ff; color:#fff; border:none; border-radius:30px; box-shadow:0 8px 20px rgba(0,0,0,0.1); cursor:pointer; transition:.3s;">About Us</button>
 </body>
 </html>
+
 
 
