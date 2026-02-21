@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Movie Box - Trending</title>
+<button href="index.html" class="home-btn"> <style>
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  background:#ff3d00;
+  color:white;
+  border:none;
+  padding:10px 15px;
+  border-radius:50%;
+  font-size:18px;
+  cursor:pointer;
+  box-shadow:0 4px 8px rgba(0,0,0,0.2);
+}
+</style>🏠</button>{
+<style>
+body{margin:0;background:#141414;font-family:Arial;color:white;}
+header{padding:20px 40px;font-size:22px;font-weight:bold;}
+.hero{position:relative;width:100%;height:500px;}
+.hero iframe{width:100%;height:100%;border:none;}
+.hero-overlay{position:absolute;bottom:30px;left:40px;}
+.movie-container{padding:40px;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px;}
+.movie-card img{width:100%;border-radius:6px;}
+.movie-card{cursor:pointer;transition:0.3s;}
+.movie-card:hover{transform:scale(1.08);}
+</style>
+</head>
+<body>
+
+<header>🔥 Latest Official Trailers</header>
+
+<div class="hero">
+<iframe id="mainTrailer" allowfullscreen></iframe>
+<div class="hero-overlay">
+<h1 id="movieTitle"></h1>
+</div>
+</div>
+
+<div class="movie-container" id="movieContainer"></div>
+
+<script>
+
+const channels = [
+  "UCi8e0iOVk1fEOogdfu4YgfA", // Movieclips Trailers
+  "UC_XZlFs-Ng3tGQp5E6Y9bOQ", // ONE Media
+  "UClG8odDC8TS6Zpqk9CGVQiQ", // Rotten Tomatoes Trailers
+  "UCjED9fF9wq7wYqC0vW9m0zQ"  // FilmSelect Trailers
+];
+
+let trailers = [];
+let currentIndex = 0;
+
+async function fetchTrailers(){
+  for (let channel of channels){
+    try{
+      const url = `https://api.rss2json.com/v1/api.json?rss_url=https://www.youtube.com/feeds/videos.xml?channel_id=${channel}`;
+      const res = await fetch(url);
+      const data = await res.json();
+
+      data.items.slice(0,6).forEach(item=>{
+        if(!item.link.includes("watch?v=")) return;
+
+        const videoId = item.link.split("v=")[1];
+        const title = item.title.toLowerCase();
+
+        if(
+  title.includes("trailer") ||
+  title.includes("teaser") ||
+  title.includes("first look") ||
+  title.includes("tv spot")
+){
+        trailers.push({
+  title: item.title,
+  id: videoId
+});
+        }
+      });
+
+    } catch(e){
+      console.log("Channel failed:", channel);
+    }
+  }
+
+  // Remove duplicates
+  trailers = trailers.filter((value, index, self) =>
+    index === self.findIndex((t) => t.id === value.id)
+  );
+
+  if(trailers.length === 0){
+    document.getElementById("movieTitle").innerText = "No trailers found.";
+    return;
+  }
+
+  buildGrid();
+  loadTrailer(0);
+  setInterval(rotateTrailer, 180000);
+}
+
+function buildGrid(){
+  const container = document.getElementById("movieContainer");
+  container.innerHTML = "";
+
+  trailers.forEach((movie,index)=>{
+    const card = document.createElement("div");
+    card.className="movie-card";
+    card.innerHTML=`<img src="https://img.youtube.com/vi/${movie.id}/hqdefault.jpg">`;
+    card.onclick=()=>{
+      currentIndex=index;
+      loadTrailer(index);
+      window.scrollTo({top:0,behavior:"smooth"});
+    };
+    container.appendChild(card);
+  });
+}
+
+function loadTrailer(index){
+  document.getElementById("mainTrailer").src=
+  `https://www.youtube.com/embed/${trailers[index].id}?autoplay=1&rel=0`;
+  document.getElementById("movieTitle").innerText=trailers[index].title;
+}
+
+function rotateTrailer(){
+  currentIndex=(currentIndex+1)%trailers.length;
+  loadTrailer(currentIndex);
+}
+
+fetchTrailers();
+
+</script>
+</body>
+</html>
